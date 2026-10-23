@@ -1,0 +1,32 @@
+
+.field_line {
+    stroke: #000;
+    stroke-width: 2px;
+}
+
+.field_line_arrow {
+    fill: #000;
+}
+
+.field_plane {
+    fill: #303030
+}
+
+.h1{
+    font-size: 2em;
+    color: #000;
+    font-family:'Arial', Tahoma, Geneva, Verdana, sans-serif
+}
+
+.button {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
