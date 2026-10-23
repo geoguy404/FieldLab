@@ -12,13 +12,13 @@
     fill: #303030
 }
 
-.h1{
+h1{
     font-size: 2em;
     color: #000;
-    font-family:'Arial', Tahoma, Geneva, Verdana, sans-serif
+    font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif
 }
 
-.button {
+button {
     background-color: #000;
     color: #fff;
     border: none;

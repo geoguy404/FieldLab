@@ -2,7 +2,7 @@ let pyodide;
 
 async function initializePyodide() {
     const status = document.getElementById("status");
-    const button = document.getElementById("run-Button");
+    const button = document.getElementById("run-button");
 
     try {
         status.textContent = 'Loading Pyodide...';

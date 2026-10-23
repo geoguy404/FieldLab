@@ -2,7 +2,7 @@ print("Hello, World!")
 
 
 def calculate_test():
-    return 1 + 1
+    return 1 + 2
 
 def create_charges():
     pass
