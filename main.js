@@ -17,6 +17,8 @@ async function initializePyodide() {
 
         const pythonCode = await response.text();
 
+        await pyodide.runPythonAsync(pythonCode);
+
         status.textContent = "Python is ready!";
         button.disabled = false;
     } catch (error) {
@@ -32,3 +34,31 @@ document.getElementById("run-button").addEventListener("click", () => {
 });
 
 initializePyodide();
+
+const canvas = document.getElementById('field-canvas');
+const ctx = canvas.getContext('2d');
+
+const canvasWidth = 600;
+const canvasHeight = 400;
+
+const dpr = window.devicePixelRatio || 1;
+
+canvas.width = canvasWidth * dpr;
+canvas.height = canvasHeight * dpr;
+
+ctx.scale(dpr, dpr);
+
+function convertX(x) {
+    const scale = 50;
+    return x * scale + canvas.width / 2;
+}
+
+function convertY(y) {
+    const scale = 50;
+    return canvas.height / 2 - y * scale;
+}
+
+ctx.beginPath();
+ctx.arc(convertX(0), convertY(0), 20, 0, 2 * Math.PI);
+ctx.fillStyle = 'red';
+ctx.fill();

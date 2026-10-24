@@ -15,7 +15,7 @@ FieldLab is an interactive physics simulator for exploring electric and magnetic
 # Running locally
 
 ```bash
-git clone https://github.com/geoguy404/fieldlab
+git clone https://github.com/geoguy404/FieldLab
 cd fieldlab
 npm install
 npm run dev
