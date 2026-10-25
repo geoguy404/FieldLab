@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canvas Graphics Lab - AI</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #080c18;
+    color: #e5efff;
+    font: 14px system-ui, sans-serif;
+    padding: 24px;
+  }
+  main { max-width: 1100px; margin: auto; }
+  h1 { font-size: 25px; margin: 0 0 6px; }
+  p { color: #91a4c5; }
+  .stage {
+    overflow: hidden;
+    border: 1px solid #283858;
+    border-radius: 16px;
+    box-shadow: 0 15px 70px #0008;
+    background: #0a1022;
+  }
+  canvas { display: block; width: 100%; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    align-items: center; padding: 16px 0;
+  }
+  button, select {
+    color: #e5efff; background: #182642;
+    border: 1px solid #344968; border-radius: 8px;
+    padding: 9px 12px; cursor: pointer;
+  }
+  label { color: #b7c7e3; }
+  input { vertical-align: middle; accent-color: #64e9ff; }
+  #stats { margin-left: auto; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main>
+  <h1>FIELD LAB <span style="color:#65e8ff">/</span> Canvas Engine - AI Test</h1>
+  <p>Animated electric fields · Particle trails · Glow · Gradients · High-DPI rendering</p>
+
+  <div class="stage">
+    <canvas id="scene"></canvas>
+  </div>
+
+  <div class="controls">
+    <label>Complexity
+      <input id="amount" type="range" min="8" max="160" value="48">
+      <span id="amountText">48</span>
+    </label>
+    <label><input id="glow" type="checkbox" checked> Glow</label>
+    <label><input id="trails" type="checkbox" checked> Trails</label>
+    <button id="pause">Pause</button>
+    <button id="reset">Reset</button>
+    <span id="stats">Starting…</span>
+  </div>
+  <p>Try increasing complexity, disabling glow, and resizing your browser.</p>
+</main>
+
+<script>
+const canvas = document.querySelector("#scene");
+const ctx = canvas.getContext("2d");
+const amount = document.querySelector("#amount");
+const glow = document.querySelector("#glow");
+const trails = document.querySelector("#trails");
+const stats = document.querySelector("#stats");
+
+let w = 0, h = 0, dpr = 1, time = 0, paused = false;
+let last = performance.now(), frames = 0, fps = 0, lastStats = 0;
+
+function resize() {
+  const rect = canvas.getBoundingClientRect();
+  w = rect.width;
+  h = Math.min(650, w * 0.61);
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  canvas.style.height = h + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+function line(x1, y1, x2, y2, color, width=1) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.stroke();
+}
+
+function arrow(x, y, angle, size, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.moveTo(size, 0);
+  ctx.lineTo(-size, size * .58);
+  ctx.lineTo(-size * .5, 0);
+  ctx.lineTo(-size, -size * .58);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.restore();
+}
+
+function fieldLine(cx, cy, r, a, t, index) {
+  // Slightly bend the radial line to create a flowing field.
+  const points = [];
+  const end = Math.min(r, Math.min(w, h) * .43);
+  for (let i = 0; i <= 90; i++) {
+    const d = 19 + (end - 19) * i / 90;
+    const bend = Math.sin(d * .018 - t * .7 + index) * d * .035;
+    const angle = a + bend / Math.max(d, 1);
+    points.push([
+      cx + Math.cos(angle) * d,
+      cy + Math.sin(angle) * d
+    ]);
+  }
+
+  ctx.beginPath();
+  points.forEach(([x, y], i) => {
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = `hsla(${188 + index * 1.5}, 100%, 70%, .53)`;
+  ctx.lineWidth = 1.15;
+  ctx.stroke();
+
+  const j = Math.floor((.52 + .12 * Math.sin(t + index)) * 90);
+  const p = points[j], q = points[j + 1];
+  arrow(p[0], p[1], Math.atan2(q[1]-p[1], q[0]-p[0]),
+        5, "#91f5ff");
+}
+
+function particle(cx, cy, a, t, i) {
+  const radius = 30 + (i % 13) * 11;
+  const speed = .35 + (i % 7) * .09;
+  const d = 20 + ((t * 36 * speed + i * 37) % radius);
+  const angle = a + Math.sin(d * .018 - t * .7 + i) * .035;
+
+  const x = cx + Math.cos(angle) * d;
+  const y = cy + Math.sin(angle) * d;
+
+  if (glow.checked) {
+    ctx.shadowBlur = 16;
+    ctx.shadowColor = "#56eaff";
+  }
+  const gradient = ctx.createRadialGradient(x-2,y-2,0,x,y,5);
+  gradient.addColorStop(0, "#ffffff");
+  gradient.addColorStop(.35, "#8af5ff");
+  gradient.addColorStop(1, "#249cff");
+
+  ctx.beginPath();
+  ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function draw(now) {
+  requestAnimationFrame(draw);
+  const dt = Math.min((now - last) / 1000, .05);
+  last = now;
+  if (!paused) time += dt;
+
+  frames++;
+  if (now - lastStats > 500) {
+    fps = Math.round(frames * 1000 / (now - lastStats || 1));
+    frames = 0;
+    lastStats = now;
+    stats.textContent = `${fps} FPS · ${canvas.width}×${canvas.height} px`;
+  }
+
+  // Background and subtle grid.
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = trails.checked
+    ? "rgba(8, 12, 27, .30)" : "#080c1b";
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.lineWidth = .5;
+  for (let x = 0; x < w; x += 40)
+    line(x, 0, x, h, "rgba(91,133,196,.09)");
+  for (let y = 0; y < h; y += 40)
+    line(0, y, w, y, "rgba(91,133,196,.09)");
+
+  const cx = w * .5, cy = h * .5;
+  const radius = Math.min(w, h) * .43;
+  const n = Number(amount.value);
+
+  // Concentric rings.
+  for (let i = 1; i <= 5; i++) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, i * radius / 5, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(83, 168, 255, ${.08 + i * .015})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Field lines.
+  for (let i = 0; i < n; i++) {
+    const a = i * Math.PI * 2 / n;
+    fieldLine(cx, cy, radius, a, time, i);
+  }
+
+  // Moving particles.
+  for (let i = 0; i < n * 2; i++) {
+    particle(cx, cy, i * Math.PI * 2 / (n * 2), time, i);
+  }
+
+  // Soft, layered central glow.
+  if (glow.checked) {
+    const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, 48);
+    g.addColorStop(0, "rgba(96,245,255,.48)");
+    g.addColorStop(.35, "rgba(37,153,255,.17)");
+    g.addColorStop(1, "rgba(37,153,255,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 48, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Charge body: gradient, outline, specular highlight.
+  const body = ctx.createRadialGradient(cx-8, cy-9, 1, cx, cy, 20);
+  body.addColorStop(0, "#ffffff");
+  body.addColorStop(.17, "#b7faff");
+  body.addColorStop(.55, "#36c7f4");
+  body.addColorStop(1, "#1761d6");
+
+  if (glow.checked) {
+    ctx.shadowColor = "#38dfff";
+    ctx.shadowBlur = 30;
+  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, 17, 0, Math.PI * 2);
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "#d1fcff";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Crisp charge symbol.
+  line(cx-6, cy, cx+6, cy, "#ffffff", 2.5);
+  line(cx, cy-6, cx, cy+6, "#ffffff", 2.5);
+
+  ctx.fillStyle = "#a8badc";
+  ctx.font = "11px system-ui";
+  ctx.fillText("POSITIVE POINT CHARGE", cx + 27, cy - 8);
+  ctx.fillStyle = "#59749f";
+  ctx.fillText("ELECTRIC FIELD / LIVE", 18, h - 18);
+}
+
+amount.addEventListener("input", () => {
+  document.querySelector("#amountText").textContent = amount.value;
+});
+document.querySelector("#pause").onclick = () => {
+  paused = !paused;
+  document.querySelector("#pause").textContent = paused ? "Resume" : "Pause";
+};
+document.querySelector("#reset").onclick = () => {
+  time = 0;
+  ctx.clearRect(0, 0, w, h);
+};
+
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
