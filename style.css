@@ -1,46 +1,111 @@
+:root,
+:root[data-theme="dark"] {
+    color-scheme: dark;
 
-.field_line {
-    stroke: #000;
-    stroke-width: 2px;
+    --bg: #06141B;
+    --panel: #11212D;
+    --surface: #253745;
+    --border: #4A5C6A;
+    --text-muted: #9BA8AB;
+    --text: #CCD0CD;
+
+    --canvas-bg: #11212D;
+    --grid: #253745;
+    --axis: #9BA8AB;
 }
 
-.field_line_arrow {
-    fill: #000;
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --bg: #F2F5F4;
+    --panel: #FFFFFF;
+    --surface: #E5ECEB;
+    --border: #C3CFD0;
+    --text-muted: #53666C;
+    --text: #172B33;
+
+    --canvas-bg: #FAFCFB;
+    --grid: #DCE5E4;
+    --axis: #53666C;
 }
 
-.field_plane {
-    fill: #303030
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
+}
+
+header {
+    width: min(100% - 32px, 1200px);
+    margin: 24px auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+#field-canvas {
+    background: var(--canvas-bg);
+}
+
+
+.app {
+    width: min(100% - 32px, 1200px);
+    margin-inline: auto;
 }
 
 h1{
+    text-align: center;
     font-size: 2em;
-    color: #000;
+    color: #ccd0cf;
     font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif
 }
 
 p{
     font-size: 1em;
-    color: #000;
+    color: var(--text);
     font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif
 }
 
 label{
     font-size: 1em;
-    color: #000;
+    color: var(--text);
     font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif
 }
 
 button {
-    background-color: #000;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
+    padding: 10px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+
+    font: inherit;
     cursor: pointer;
+}
+
+button:hover {
+    filter: brightness(1.12);
 }
 
 
@@ -50,6 +115,9 @@ button {
     height: auto;
     aspect-ratio: 3/2;
 
-    background-color: #303648;
+    background-color: var(--canvas-bg);
     border-radius: 15px;
+    border: 1px solid var(--border);
 }
+
+

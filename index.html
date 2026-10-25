@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,16 +8,22 @@
 </head>
 <body>
     <h1>Field Lab - an interactive field simulation</h1>
-    <p id="status"> Loading python...</p>
-    <button id="run-button" disabled> Run python</button>
-    <p id="output"></p>
-    <canvas id="field-canvas" width="600" height="400"></canvas>
+    <main class="app"></main>
+        <canvas id="field-canvas" width="600" height="400"></canvas>
+        <span id="button-area">
+            <button id="theme-toggle" type="button">
+                Switch to light mode
+            </button>
+            <button id="grid-toggle" type="button">
+                Show grid
+            </button>
+        </span>
+        <p id="status"> Loading python...</p>
+        <button id="run-button" disabled> Run python</button>
+        <p id="output"></p>
 
+    </main>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js"></script>
     <script src="main.js"></script>
-    <span id="button-area">
-        <input type="checkbox" id="grid-checkbox">
-        <label for="grid-checkbox">Show Grid</label> 
-    </span>
 </body>
 </html>

@@ -35,13 +35,42 @@ document.getElementById("run-button").addEventListener("click", () => {
 
 initializePyodide();
 
+
+const styles = getComputedStyle(document.documentElement);
+const gridColor = styles.getPropertyValue("--grid").trim();
+const axisColor = styles.getPropertyValue("--axis").trim();
+
+const themeButton = document.getElementById("theme-toggle");
+const gridButton = document.getElementById("grid-toggle");
+let gridVisible = true;
+
+gridButton.addEventListener("click", () => {
+    gridVisible = !gridVisible;
+    gridButton.textContent = gridVisible ? "Hide grid" : "Show grid";
+    drawScene();
+});
+
+themeButton.addEventListener("click", () => {
+    const root = document.documentElement;
+
+    const isDark = root.dataset.theme !== "light";
+
+    root.dataset.theme = isDark ? "light" : "dark";
+
+    themeButton.textContent = isDark
+        ? "Switch to dark mode"
+        : "Switch to light mode";
+
+    drawScene();
+});
+
 const canvas = document.getElementById("field-canvas");
 const ctx = canvas.getContext("2d");
+
 
 const scale = 50;
 let canvasWidth = 600;
 let canvasHeight = 400;
-
 
 function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
@@ -68,9 +97,10 @@ function convertY(y) {
 function drawScene() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    drawGrid();
-    drawAxis();
-
+    if(gridVisible) {
+        drawGrid();
+        drawAxis();
+    }
     ctx.beginPath();
     ctx.arc(
         convertX(0),
@@ -93,17 +123,17 @@ resizeObserver.observe(canvas);
 function drawGrid(){
     for(let x = - canvasWidth/2; x < canvasWidth/2; x += 1){
         ctx.beginPath();
-        ctx.moveTo(convertX(x), 0);
-        ctx.lineTo(convertX(x), canvasHeight);
-        ctx.strokeStyle = "#5c616d50";
+        ctx.moveTo(scale*x, 0);
+        ctx.lineTo(scale*x, canvasHeight);
+        ctx.strokeStyle = gridColor;
         ctx.lineWidth = 1;
         ctx.stroke();
     }
     for(let y = - canvasHeight/2; y < canvasHeight/2; y += 1){
         ctx.beginPath();
-        ctx.moveTo(0, convertY(y));
-        ctx.lineTo(canvasWidth, convertY(y));
-        ctx.strokeStyle = "#5c616d50";
+        ctx.moveTo(0, scale*y);
+        ctx.lineTo(canvasWidth, scale*y);
+        ctx.strokeStyle = gridColor;
         ctx.lineWidth = 1;
         ctx.stroke();
     }
@@ -114,13 +144,13 @@ function drawAxis() {
     ctx.beginPath();
     ctx.moveTo(0, convertY(0));
     ctx.lineTo(canvasWidth, convertY(0));
-    ctx.strokeStyle = "#ffffff85";
+    ctx.strokeStyle = axisColor;
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.moveTo(convertX(0), 0);
     ctx.lineTo(convertX(0), canvasHeight);
 
-    ctx.strokeStyle = "#ffffff85";
+    ctx.strokeStyle = axisColor;
     ctx.lineWidth = 2;
     ctx.stroke();
 }
