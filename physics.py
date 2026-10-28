@@ -1,6 +1,9 @@
 print("Hello, World!")
 
 
+def printInitialized():
+    return "Physics module initialized."
+
 def calculate_test():
     return 1 + 2
 

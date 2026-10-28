@@ -9,9 +9,10 @@
     --text-muted: #9BA8AB;
     --text: #CCD0CD;
 
+
     --canvas-bg: #11212D;
     --grid: #253745;
-    --axis: #9BA8AB;
+    --axis: #276472;
 }
 
 :root[data-theme="light"] {
@@ -25,8 +26,8 @@
     --text: #172B33;
 
     --canvas-bg: #FAFCFB;
-    --grid: #DCE5E4;
-    --axis: #53666C;
+    --grid: #889694;
+    --axis: #758e96;
 }
 
 
@@ -69,32 +70,43 @@ header {
 }
 
 
-.app {
-    width: min(100% - 32px, 1200px);
-    margin-inline: auto;
+.simulation-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 600px) 240px;
+    gap: 24px;
+
+    align-items: start;
+    width: min(100%, 864px);
+    margin: 0 auto;
+}
+
+.canvas-panel,
+.control-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
 }
 
 h1{
     text-align: center;
     font-size: 2em;
-    color: #ccd0cf;
-    font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif
+    color: var(--text);
 }
 
 p{
     font-size: 1em;
     color: var(--text);
-    font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif
 }
 
 label{
     font-size: 1em;
     color: var(--text);
-    font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif
 }
 
 button {
     padding: 10px 10px;
+    size: 1em;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--surface);
@@ -114,6 +126,7 @@ button:hover {
     width: min(100%, 900px);
     height: auto;
     aspect-ratio: 3/2;
+    margin: 10px;
 
     background-color: var(--canvas-bg);
     border-radius: 15px;

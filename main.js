@@ -29,7 +29,7 @@ async function initializePyodide() {
 }
 
 document.getElementById("run-button").addEventListener("click", () => {
-    const result = pyodide.runPython("calculate_test()");
+    const result = pyodide.runPython("printInitialized()");
     document.getElementById("output").textContent = "Python returned: " + result;
 });
 
@@ -39,6 +39,8 @@ initializePyodide();
 const styles = getComputedStyle(document.documentElement);
 const gridColor = styles.getPropertyValue("--grid").trim();
 const axisColor = styles.getPropertyValue("--axis").trim();
+const positiveColor = styles.getPropertyValue("--positive").trim();
+const negativeColor = styles.getPropertyValue("--negative").trim();
 
 const themeButton = document.getElementById("theme-toggle");
 const gridButton = document.getElementById("grid-toggle");
@@ -101,17 +103,10 @@ function drawScene() {
         drawGrid();
         drawAxis();
     }
-    ctx.beginPath();
-    ctx.arc(
-        convertX(0),
-        convertY(0),
-        30,
-        0,
-        2 * Math.PI
-    );
+    
+    drawCharge(-2, 1, true);
+    drawCharge(1, -1, false);
 
-    ctx.fillStyle = "#4d70bd";
-    ctx.fill();
 }
 
 resizeCanvas();
@@ -153,4 +148,18 @@ function drawAxis() {
     ctx.strokeStyle = axisColor;
     ctx.lineWidth = 2;
     ctx.stroke();
+}
+
+
+function drawCharge(x,y, isPositive) {
+    ctx.beginPath();
+    ctx.arc(
+        convertX(x),
+        convertY(y),
+        20,
+        0,
+        2 * Math.PI
+    );  
+    ctx.fillStyle = isPositive ? positiveColor : negativeColor; 
+    ctx.fill();
 }

@@ -8,20 +8,24 @@
 </head>
 <body>
     <h1>Field Lab - an interactive field simulation</h1>
-    <main class="app"></main>
-        <canvas id="field-canvas" width="600" height="400"></canvas>
-        <span id="button-area">
-            <button id="theme-toggle" type="button">
-                Switch to light mode
-            </button>
-            <button id="grid-toggle" type="button">
-                Show grid
-            </button>
-        </span>
-        <p id="status"> Loading python...</p>
-        <button id="run-button" disabled> Run python</button>
-        <p id="output"></p>
-
+    <main class="simulation-layout">
+        <section class="canvas-panel">
+            <h2>Simulation</h2>
+            <canvas id="field-canvas" width="600" height="400"></canvas>
+        </section>
+        <aside class="control-panel">
+            <h2>Controls</h2>
+            <button id="add-charge">Add charge</button>
+            <button id="reset-button">Reset</button>
+            <button id="theme-toggle">Toggle theme</button>
+            <button id="grid-toggle">Toggle grid</button>
+        </aside>
+         <section class="info-panel">
+            <label>
+            <input type="text" id="x-coordinate" checked>
+                x :
+            </label>
+        </section>
     </main>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js"></script>
     <script src="main.js"></script>
