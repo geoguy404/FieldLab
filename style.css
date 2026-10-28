@@ -8,10 +8,13 @@
     --border: #4A5C6A;
     --text-muted: #9BA8AB;
     --text: #CCD0CD;
+    --positive: #b43b0b;
+    --negative: #0b66bb;
 
 
-    --canvas-bg: #11212D;
-    --grid: #253745;
+
+    --canvas-bg: #253745;
+    --grid: #38607c;
     --axis: #276472;
 }
 
@@ -24,9 +27,12 @@
     --border: #C3CFD0;
     --text-muted: #53666C;
     --text: #172B33;
+    --positive: #b43b0b;
+    --negative: #0b66bb;
+
 
     --canvas-bg: #FAFCFB;
-    --grid: #889694;
+    --grid: #b2ceca;
     --axis: #758e96;
 }
 
@@ -65,19 +71,20 @@ header {
     border-radius: 12px;
 }
 
-#field-canvas {
-    background: var(--canvas-bg);
-}
-
-
 .simulation-layout {
     display: grid;
-    grid-template-columns: minmax(0, 600px) 240px;
+    grid-template-columns: minmax(0, 1fr) 240px;
     gap: 24px;
-
     align-items: start;
-    width: min(100%, 864px);
+
+    width: min(calc(100% - 32px), 1200px);
     margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+    .simulation-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .canvas-panel,
@@ -86,6 +93,16 @@ header {
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 20px;
+}
+
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-panel-label {
+    color: var(--grid)
 }
 
 h1{
@@ -106,6 +123,7 @@ label{
 
 button {
     padding: 10px 10px;
+    margin: 5px;
     size: 1em;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -123,14 +141,11 @@ button:hover {
 
 #field-canvas {
     display: block;
-    width: min(100%, 900px);
+    width: 100%;
     height: auto;
-    aspect-ratio: 3/2;
-    margin: 10px;
-
-    background-color: var(--canvas-bg);
-    border-radius: 15px;
-    border: 1px solid var(--border);
+    aspect-ratio: 3 / 2;
+    background: var(--canvas-bg);
+    border-radius: 8px;
 }
 
 

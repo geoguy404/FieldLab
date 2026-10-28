@@ -36,15 +36,34 @@ document.getElementById("run-button").addEventListener("click", () => {
 initializePyodide();
 
 
-const styles = getComputedStyle(document.documentElement);
-const gridColor = styles.getPropertyValue("--grid").trim();
-const axisColor = styles.getPropertyValue("--axis").trim();
-const positiveColor = styles.getPropertyValue("--positive").trim();
-const negativeColor = styles.getPropertyValue("--negative").trim();
+function getPalette() {
+    const styles = getComputedStyle(document.documentElement);
+
+    return {
+        grid: styles.getPropertyValue("--grid").trim(),
+        axis: styles.getPropertyValue("--axis").trim(),
+        positive: styles.getPropertyValue("--positive").trim(),
+        negative: styles.getPropertyValue("--negative").trim()
+    };
+}
+
+const addPositiveChargeButton = document.getElementById("add-charge-positive");
+const addNegativeChargeButton = document.getElementById("add-charge-negative");
 
 const themeButton = document.getElementById("theme-toggle");
 const gridButton = document.getElementById("grid-toggle");
 let gridVisible = true;
+
+addPositiveChargeButton.addEventListener("click", () => {
+    charges.push({ x: 0, y: 0, positive: true });
+    drawScene();
+});
+
+addNegativeChargeButton.addEventListener("click", () => {
+    charges.push({ x: 0, y: 0, positive: false });
+    drawScene();
+});
+
 
 gridButton.addEventListener("click", () => {
     gridVisible = !gridVisible;
@@ -59,9 +78,6 @@ themeButton.addEventListener("click", () => {
 
     root.dataset.theme = isDark ? "light" : "dark";
 
-    themeButton.textContent = isDark
-        ? "Switch to dark mode"
-        : "Switch to light mode";
 
     drawScene();
 });
@@ -96,6 +112,11 @@ function convertY(y) {
     return canvasHeight / 2 - y * scale;
 }
 
+const charges = [
+    { x: -2, y: 1, positive: true },
+    { x: 1, y: -1, positive: false }
+];
+
 function drawScene() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -103,10 +124,9 @@ function drawScene() {
         drawGrid();
         drawAxis();
     }
-    
-    drawCharge(-2, 1, true);
-    drawCharge(1, -1, false);
-
+    for (const charge of charges) {
+    drawCharge(charge.x, charge.y, charge.positive);
+}
 }
 
 resizeCanvas();
@@ -115,43 +135,47 @@ const resizeObserver = new ResizeObserver(resizeCanvas);
 resizeObserver.observe(canvas);
 
 
-function drawGrid(){
-    for(let x = - canvasWidth/2; x < canvasWidth/2; x += 1){
-        ctx.beginPath();
-        ctx.moveTo(scale*x, 0);
-        ctx.lineTo(scale*x, canvasHeight);
-        ctx.strokeStyle = gridColor;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+function drawGrid() {
+    const palette = getPalette();
+
+    ctx.beginPath();
+    ctx.strokeStyle = palette.grid;
+    ctx.lineWidth = 1;
+
+    for (let x = canvasWidth / 2 % scale; x <= canvasWidth; x += scale) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvasHeight);
     }
-    for(let y = - canvasHeight/2; y < canvasHeight/2; y += 1){
-        ctx.beginPath();
-        ctx.moveTo(0, scale*y);
-        ctx.lineTo(canvasWidth, scale*y);
-        ctx.strokeStyle = gridColor;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+
+    for (let y = canvasHeight / 2 % scale; y <= canvasHeight; y += scale) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvasWidth, y);
     }
+
+    ctx.stroke();
 }
 
 
 function drawAxis() {
+    const palette = getPalette();
+
     ctx.beginPath();
+    ctx.strokeStyle = palette.axis;
+    ctx.lineWidth = 2;
+
     ctx.moveTo(0, convertY(0));
     ctx.lineTo(canvasWidth, convertY(0));
-    ctx.strokeStyle = axisColor;
-    ctx.lineWidth = 2;
-    ctx.stroke();
+
     ctx.moveTo(convertX(0), 0);
     ctx.lineTo(convertX(0), canvasHeight);
 
-    ctx.strokeStyle = axisColor;
-    ctx.lineWidth = 2;
     ctx.stroke();
 }
 
 
-function drawCharge(x,y, isPositive) {
+function drawCharge(x, y, isPositive) {
+    const palette = getPalette();
+
     ctx.beginPath();
     ctx.arc(
         convertX(x),
@@ -159,7 +183,11 @@ function drawCharge(x,y, isPositive) {
         20,
         0,
         2 * Math.PI
-    );  
-    ctx.fillStyle = isPositive ? positiveColor : negativeColor; 
+    );
+
+    ctx.fillStyle = isPositive
+        ? palette.positive
+        : palette.negative;
+
     ctx.fill();
 }

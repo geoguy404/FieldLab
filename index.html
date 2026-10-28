@@ -15,18 +15,35 @@
         </section>
         <aside class="control-panel">
             <h2>Controls</h2>
-            <button id="add-charge">Add charge</button>
+            <button id="add-charge-positive">Add positive charge</button>
+            <button id="add-charge-negative">Add negative charge</button>
             <button id="reset-button">Reset</button>
             <button id="theme-toggle">Toggle theme</button>
             <button id="grid-toggle">Toggle grid</button>
         </aside>
          <section class="info-panel">
-            <label>
-            <input type="text" id="x-coordinate" checked>
-                x :
+            <label class ="info-panel-label">
+            x: 
+            <input type="text" id="x-coordinate">
             </label>
+            <label class ="info-panel-label">
+            y: 
+            <input type="text" id="x-coordinate">
+            </label>
+            <label class ="info-panel-label">
+                charge:  positive
+            </label>
+            
         </section>
+
+
     </main>
+
+     <p id="status"> Loading python...</p>
+    <button id="run-button" disabled> Run python</button>
+    <p id="output"></p>
+
+
     <script src="https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js"></script>
     <script src="main.js"></script>
 </body>
