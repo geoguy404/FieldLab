@@ -40,10 +40,13 @@ function getPalette() {
     const styles = getComputedStyle(document.documentElement);
 
     return {
+        text: styles.getPropertyValue("--text").trim(),
         grid: styles.getPropertyValue("--grid").trim(),
         axis: styles.getPropertyValue("--axis").trim(),
         positive: styles.getPropertyValue("--positive").trim(),
-        negative: styles.getPropertyValue("--negative").trim()
+        positiveBd: styles.getPropertyValue("--positive-bd").trim(),
+        negative: styles.getPropertyValue("--negative").trim(),
+        negativeBd: styles.getPropertyValue("--negative-bd").trim()
     };
 }
 
@@ -89,6 +92,9 @@ const ctx = canvas.getContext("2d");
 const scale = 50;
 let canvasWidth = 600;
 let canvasHeight = 400;
+
+let draggedCharge = null;
+const chargeRadius = 20;
 
 function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
@@ -176,18 +182,74 @@ function drawAxis() {
 function drawCharge(x, y, isPositive) {
     const palette = getPalette();
 
-    ctx.beginPath();
-    ctx.arc(
-        convertX(x),
-        convertY(y),
-        20,
-        0,
-        2 * Math.PI
-    );
+    const centerX = convertX(x);
+    const centerY = convertY(y);
+    const radius = chargeRadius;
 
+    ctx.beginPath();
+    ctx.arc(convertX(x), convertY(y), radius, 0, 2 * Math.PI);
     ctx.fillStyle = isPositive
         ? palette.positive
         : palette.negative;
-
     ctx.fill();
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle  = isPositive
+        ? palette.positiveBd
+        : palette.negativeBd;
+    ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 24px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(isPositive ? "+" : "−", centerX, centerY);
 }
+
+function pointerToPhysics(event) {
+    const rect = canvas.getBoundingClientRect();
+
+    const pixelX = event.clientX - rect.left; 
+    const pixelY = event.clientY - rect.top;
+
+    return {
+        x: (pixelX - canvasWidth/2)/scale,
+        y: (canvasHeight/2 -pixelY)/scale
+    };
+}
+
+canvas.addEventListener("pointerdown", (event) => {
+    const pointer = pointerToPhysics(event);
+
+    for (let i = charges.length - 1; i >= 0; i--) {
+        const charge = charges[i];
+
+        const dx = pointer.x - charge.x;
+        const dy = pointer.y - charge.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance <= chargeRadius / scale) {
+            draggedCharge = charge;
+            canvas.setPointerCapture(event.pointerId);
+            break;
+        }
+    }
+});
+
+canvas.addEventListener("pointermove", (event) => {
+    if (draggedCharge === null) return;
+
+    const pointer = pointerToPhysics(event);
+
+    draggedCharge.x = pointer.x;
+    draggedCharge.y = pointer.y;
+
+    drawScene();
+});
+
+canvas.addEventListener("pointerup", () => {
+    draggedCharge = null;
+});
+
+canvas.addEventListener("pointercancel", () => {
+    draggedCharge = null;
+});

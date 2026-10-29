@@ -7,21 +7,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Field Lab - an interactive field simulation</h1>
+    <div id="heading">
+        <span>
+            <h1>Field Lab - an interactive field simulation</h1>
+        </span>
+        <aside>
+            <button id="theme-toggle">Toggle theme</button>
+        </aside>
+    </div>
     <main class="simulation-layout">
         <section class="canvas-panel">
             <h2>Simulation</h2>
             <canvas id="field-canvas" width="600" height="400"></canvas>
-        </section>
-        <aside class="control-panel">
-            <h2>Controls</h2>
-            <button id="add-charge-positive">Add positive charge</button>
-            <button id="add-charge-negative">Add negative charge</button>
-            <button id="reset-button">Reset</button>
-            <button id="theme-toggle">Toggle theme</button>
-            <button id="grid-toggle">Toggle grid</button>
-        </aside>
-         <section class="info-panel">
+            <section class="info-panel">
             <label class ="info-panel-label">
             x: 
             <input type="text" id="x-coordinate">
@@ -31,10 +29,17 @@
             <input type="text" id="x-coordinate">
             </label>
             <label class ="info-panel-label">
-                charge:  positive
+                charge:  +e²³
             </label>
-            
         </section>
+        </section>
+        <aside class="control-panel">
+            <h2>Controls</h2>
+            <button id="add-charge-positive">Add positive charge</button>
+            <button id="add-charge-negative">Add negative charge</button>
+            <button id="reset-button">Reset</button>
+            <button id="grid-toggle">Toggle grid</button>
+        </aside>
 
 
     </main>
