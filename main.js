@@ -53,18 +53,24 @@ function getPalette() {
 const addPositiveChargeButton = document.getElementById("add-charge-positive");
 const addNegativeChargeButton = document.getElementById("add-charge-negative");
 
+const resetButton = document.getElementById("reset-button");
+
 const themeButton = document.getElementById("theme-toggle");
 const gridButton = document.getElementById("grid-toggle");
 let gridVisible = true;
 
 addPositiveChargeButton.addEventListener("click", () => {
-    charges.push({ x: 0, y: 0, positive: true });
+    charges.push({ x: 0, y: 0, charge: 1e-10});
     drawScene();
 });
 
 addNegativeChargeButton.addEventListener("click", () => {
-    charges.push({ x: 0, y: 0, positive: false });
+    charges.push({ x: 0, y: 0, charge: -1e-10});
     drawScene();
+});
+
+resetButton.addEventListener("click", () => {
+    reset();
 });
 
 
@@ -127,6 +133,11 @@ function isPositive(charge) {
     return charge.charge > 0;
 }
 
+function reset() {
+    charges.length = 0;
+    drawScene();
+}
+
 function drawScene() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -134,6 +145,8 @@ function drawScene() {
         drawGrid();
         drawAxis();
     }
+    drawFieldLines();
+
     for (const charge of charges) {
     drawCharge(charge.x, charge.y, isPositive(charge));
 }
@@ -304,17 +317,98 @@ function traceFieldLine(startX, startY){
     const maxSteps = 1000;
 
     for (let i = 0; i < maxSteps; i++) {
+        if(isOutsideCanvas(x,y)) break;
+        if(isNearNegativeCharge(x,y)) break;
+        
         const field = calculateTotalElectricField(charges, x, y);
         const direction = normalizeVector(field);
-        if(field.x === 0 && field.y === 0){
-            break;
-        }
-        if(direction.x === 0 && direction.y === 0){
-            break;
-        }
+
+        if(field.x === 0 && field.y === 0) break;
+        if(direction.x === 0 && direction.y === 0) break;
+        
         points.push({x:x,y:y});
         x += direction.x * stepSize;
         y += direction.y * stepSize;
     }
     return points;
 }
+
+function isNearNegativeCharge(x, y) {
+    const stopRadius = 0.4;
+
+    for (const charge of charges) {
+        if (charge.charge >= 0) continue;
+
+        const dx = x - charge.x;
+        const dy = y - charge.y;
+        const distance = Math.sqrt(dx ** 2 + dy ** 2);
+
+        if (distance < stopRadius) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function isOutsideCanvas(x, y) {
+    const halfWidth = canvasWidth / (2 * scale);
+    const halfHeight = canvasHeight / (2 * scale);
+
+    return (
+        x < -halfWidth || x > halfWidth ||
+        y < -halfHeight || y > halfHeight
+    );
+}
+
+
+function generateFieldLines(){
+    const fieldLines = [];
+
+        const lineCount = 16;
+        const startRadius = 0.4;
+
+    for(const charge of charges){
+        if(!isPositive(charge)) continue;
+
+        for (let i = 0; i < lineCount; i++) {
+            const angle = 2* Math.PI * i /lineCount;
+
+            const startX = charge.x + startRadius * Math.cos(angle);
+            const startY = charge.y + startRadius * Math.sin(angle);
+            
+            const line = traceFieldLine(startX,startY);
+            fieldLines.push(line);
+        }
+
+    }
+    return fieldLines;
+}
+
+function drawFieldLines() {
+    const fieldLines = generateFieldLines();
+
+    for (const line of fieldLines) {
+        if (line.length < 2) continue;
+
+        ctx.beginPath();
+        ctx.moveTo(
+            convertX(line[0].x),
+            convertY(line[0].y)
+        );
+
+        for (let i = 1; i < line.length; i++) {
+            const point = line[i];
+
+            ctx.lineTo(
+                convertX(point.x),
+                convertY(point.y)
+            );
+        }
+
+        ctx.strokeStyle = "#CCD0CE";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+}
+
