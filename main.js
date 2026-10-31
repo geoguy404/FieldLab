@@ -119,9 +119,13 @@ function convertY(y) {
 }
 
 const charges = [
-    { x: -2, y: 1, positive: true },
-    { x: 1, y: -1, positive: false }
+    { x: -2, y: 1, charge: 1e-6 },
+    { x: 1, y: -1, charge: -1e-6 }
 ];
+
+function isPositive(charge) {
+    return charge.charge > 0;
+}
 
 function drawScene() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -131,7 +135,7 @@ function drawScene() {
         drawAxis();
     }
     for (const charge of charges) {
-    drawCharge(charge.x, charge.y, charge.positive);
+    drawCharge(charge.x, charge.y, isPositive(charge));
 }
 }
 
@@ -253,3 +257,64 @@ canvas.addEventListener("pointerup", () => {
 canvas.addEventListener("pointercancel", () => {
     draggedCharge = null;
 });
+
+function calculateElectricField(charge,chargeX,chargeY,x,y) {
+    const k = 8.99 * 10 ** 9;
+    const dx = x-chargeX;
+    const dy = y-chargeY;
+    const r = Math.sqrt(dx**2 + dy**2);
+    if(r === 0){
+        return {x: 0, y: 0};
+    }
+    const fieldX = k * charge * dx / r**3;
+    const fieldY = k * charge * dy / r**3;
+    return {x: fieldX, y: fieldY};
+}
+
+function calculateTotalElectricField(charges, x, y) {
+    let totalFieldX = 0;
+    let totalFieldY = 0;
+    for (let i = 0; i < charges.length; i++) {
+        const field = calculateElectricField(
+            charges[i].charge, charges[i].x, charges[i].y,x,y);
+        totalFieldX += field.x;
+        totalFieldY += field.y;
+    }
+    return {x: totalFieldX, y: totalFieldY};
+}
+
+function normalizeVector(vector) {
+    const magnitude = Math.sqrt(vector.x ** 2 + vector.y ** 2);
+    if(magnitude === 0){
+        return {x: 0, y: 0};
+    }
+    const dx = vector.x / magnitude;
+    const dy = vector.y / magnitude;
+
+    return {x: dx, y: dy};
+}
+
+function traceFieldLine(startX, startY){
+    const points = [];
+
+    let x = startX;
+    let y = startY;
+
+    const stepSize = 0.05;
+    const maxSteps = 1000;
+
+    for (let i = 0; i < maxSteps; i++) {
+        const field = calculateTotalElectricField(charges, x, y);
+        const direction = normalizeVector(field);
+        if(field.x === 0 && field.y === 0){
+            break;
+        }
+        if(direction.x === 0 && direction.y === 0){
+            break;
+        }
+        points.push({x:x,y:y});
+        x += direction.x * stepSize;
+        y += direction.y * stepSize;
+    }
+    return points;
+}
