@@ -13,8 +13,6 @@
     --negative: #0b66bb;
     --negative-bd: #436686;
 
-
-
     --canvas-bg: #253745;
     --grid: #38607c;
     --axis: #276472;
@@ -69,11 +67,6 @@ header {
     gap: 16px;
 }
 
-.panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-}
 
 .simulation-layout {
     display: grid;
@@ -105,8 +98,50 @@ header {
     gap: 12px;
 }
 
+.info-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+
+    margin-top: 16px;
+    padding: 16px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
 .info-panel-label {
-    color: var(--grid)
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.info-panel input {
+    width: 90px;
+    padding: 8px 10px;
+
+    background: var(--panel);
+    color: var(--grid);
+
+    border: 1px solid var(--border);
+    border-radius: 6px;
+
+    font: inherit;
+}
+
+.info-panel input:focus {
+    outline: 2px solid var(--axis);
+    outline-offset: 2px;
+}
+
+#charge-value {
+    color: var(--text);
+    font-weight: 600;
 }
 
 h1{
@@ -124,19 +159,6 @@ h1{
 p{
     font-size: 1em;
     color: var(--text);
-}
-
-label{
-    font-size: 1em;
-    color: var(--text);
-}
-
-input {
-    background: var(--canvas-bg);
-    border: var(--panel),1px;
-    width: 40px;
-    border-radius: 3px;
-    stroke-color: var(--text)
 }
 
 button {

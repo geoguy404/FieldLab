@@ -66,7 +66,8 @@ addPositiveChargeButton.addEventListener("click", () => {
         ...position,
         charge: 1e-10
     });
-
+    focusedCharge = charges[charges.length - 1];
+    updateInfoPanel();
     drawScene();
 });
 
@@ -77,7 +78,8 @@ addNegativeChargeButton.addEventListener("click", () => {
         ...position,
         charge: -1e-10
     });
-
+    focusedCharge = charges[charges.length - 1];
+    updateInfoPanel();
     drawScene();
 });
 
@@ -150,6 +152,9 @@ function isPositive(charge) {
 
 function reset() {
     charges.length = 0;
+    focusedCharge = null;
+    draggedCharge = null;
+    updateInfoPanel();
     drawScene();
 }
 
@@ -163,7 +168,8 @@ function drawScene() {
     drawFieldLines();
 
     for (const charge of charges) {
-    drawCharge(charge.x, charge.y, isPositive(charge));
+    drawCharge(
+        charge.x, charge.y, isPositive(charge), charge === focusedCharge);
 }
 }
 
@@ -211,7 +217,7 @@ function drawAxis() {
 }
 
 
-function drawCharge(x, y, isPositive) {
+function drawCharge(x, y, isPositive, isSelected) {
     const palette = getPalette();
 
     const centerX = convertX(x);
@@ -226,9 +232,12 @@ function drawCharge(x, y, isPositive) {
     ctx.fill();
 
     ctx.lineWidth = 2;
+    if(isSelected) ctx.strokeStyle = palette.grid;
+    else{
     ctx.strokeStyle  = isPositive
         ? palette.positiveBd
         : palette.negativeBd;
+    }
     ctx.stroke();
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "bold 24px system-ui, sans-serif";
@@ -252,6 +261,7 @@ function pointerToPhysics(event) {
 canvas.addEventListener("pointerdown", (event) => {
     const pointer = pointerToPhysics(event);
     focusedCharge = null;
+    draggedCharge = null;
 
     for (let i = charges.length - 1; i >= 0; i--) {
         const charge = charges[i];
@@ -263,10 +273,13 @@ canvas.addEventListener("pointerdown", (event) => {
         if (distance <= chargeRadius / scale) {
             draggedCharge = charge;
             focusedCharge = charge;
+
             canvas.setPointerCapture(event.pointerId);
             break;
         }
     }
+    updateInfoPanel();
+    drawScene();
 });
 
 canvas.addEventListener("pointermove", (event) => {
@@ -276,7 +289,7 @@ canvas.addEventListener("pointermove", (event) => {
 
     draggedCharge.x = pointer.x;
     draggedCharge.y = pointer.y;
-
+    updateInfoPanel();
     drawScene();
 });
 
