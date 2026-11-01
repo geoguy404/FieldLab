@@ -60,12 +60,24 @@ const gridButton = document.getElementById("grid-toggle");
 let gridVisible = true;
 
 addPositiveChargeButton.addEventListener("click", () => {
-    charges.push({ x: 0, y: 0, charge: 1e-10});
+    const position = {x: 0, y:0};
+
+    charges.push({
+        ...position,
+        charge: 1e-10
+    });
+
     drawScene();
 });
 
 addNegativeChargeButton.addEventListener("click", () => {
-    charges.push({ x: 0, y: 0, charge: -1e-10});
+    const position = {x: 0, y:0};
+
+    charges.push({
+        ...position,
+        charge: -1e-10
+    });
+
     drawScene();
 });
 
@@ -91,6 +103,8 @@ themeButton.addEventListener("click", () => {
     drawScene();
 });
 
+
+
 const canvas = document.getElementById("field-canvas");
 const ctx = canvas.getContext("2d");
 
@@ -100,6 +114,7 @@ let canvasWidth = 600;
 let canvasHeight = 400;
 
 let draggedCharge = null;
+let focusedCharge = null;
 const chargeRadius = 20;
 
 function resizeCanvas() {
@@ -125,8 +140,8 @@ function convertY(y) {
 }
 
 const charges = [
-    { x: -2, y: 1, charge: 1e-6 },
-    { x: 1, y: -1, charge: -1e-6 }
+    { x: -2, y: 1, charge: 1e-10 },
+    { x: 1, y: -1, charge: -1e-10 }
 ];
 
 function isPositive(charge) {
@@ -236,6 +251,7 @@ function pointerToPhysics(event) {
 
 canvas.addEventListener("pointerdown", (event) => {
     const pointer = pointerToPhysics(event);
+    focusedCharge = null;
 
     for (let i = charges.length - 1; i >= 0; i--) {
         const charge = charges[i];
@@ -246,6 +262,7 @@ canvas.addEventListener("pointerdown", (event) => {
 
         if (distance <= chargeRadius / scale) {
             draggedCharge = charge;
+            focusedCharge = charge;
             canvas.setPointerCapture(event.pointerId);
             break;
         }
@@ -270,6 +287,25 @@ canvas.addEventListener("pointerup", () => {
 canvas.addEventListener("pointercancel", () => {
     draggedCharge = null;
 });
+
+function updateInfoPanel() {
+    const xInput = document.getElementById("x-coordinate");
+    const yInput = document.getElementById("y-coordinate");
+    const chargeDisplay = document.getElementById("charge-value");
+
+    if (focusedCharge === null) {
+        xInput.value = "";
+        yInput.value = "";
+        chargeDisplay.textContent = "No charge selected";
+
+        return;
+    }
+
+    xInput.value = focusedCharge.x.toFixed(2);
+    yInput.value = focusedCharge.y.toFixed(2);
+
+    chargeDisplay.textContent = focusedCharge.charge + " C";
+}
 
 function calculateElectricField(charge,chargeX,chargeY,x,y) {
     const k = 8.99 * 10 ** 9;
@@ -313,12 +349,15 @@ function traceFieldLine(startX, startY){
     let x = startX;
     let y = startY;
 
-    const stepSize = 0.05;
-    const maxSteps = 1000;
+    const stepSize = 0.02;
+    const maxSteps = 2000;
+    const traceLimit = 200;
 
     for (let i = 0; i < maxSteps; i++) {
-        if(isOutsideCanvas(x,y)) break;
         if(isNearNegativeCharge(x,y)) break;
+        if(Math.abs(x) > traceLimit || Math.abs(y) > traceLimit) {
+            break;
+        }   
         
         const field = calculateTotalElectricField(charges, x, y);
         const direction = normalizeVector(field);
@@ -365,7 +404,7 @@ function isOutsideCanvas(x, y) {
 function generateFieldLines(){
     const fieldLines = [];
 
-        const lineCount = 16;
+        const lineCount = 25;
         const startRadius = 0.4;
 
     for(const charge of charges){

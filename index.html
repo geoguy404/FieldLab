@@ -20,18 +20,21 @@
             <h2>Simulation</h2>
             <canvas id="field-canvas" width="600" height="400"></canvas>
             <section class="info-panel">
-            <label class ="info-panel-label">
-            x: 
-            <input type="text" id="x-coordinate">
-            </label>
-            <label class ="info-panel-label">
-            y: 
-            <input type="text" id="x-coordinate">
-            </label>
-            <label class ="info-panel-label">
-                charge:  +e²³
-            </label>
-        </section>
+                <label class="info-panel-label">
+        x:
+        <input type="number" id="x-coordinate" step="0.1">
+    </label>
+
+    <label class="info-panel-label">
+        y:
+        <input type="number" id="y-coordinate" step="0.1">
+    </label>
+
+    <label class="info-panel-label">
+        Charge:
+        <span id="charge-value">No charge selected</span>
+    </label>
+    </section>
         </section>
         <aside class="control-panel">
             <h2>Controls</h2>
