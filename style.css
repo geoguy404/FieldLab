@@ -104,10 +104,10 @@ header {
     align-items: center;
     gap: 16px;
 
-    margin-top: 16px;
-    padding: 16px;
+    margin-top: 8px;
+    padding: 6px;
 
-    background: var(--surface);
+    background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 10px;
 }
@@ -123,10 +123,10 @@ header {
 
 .info-panel input {
     width: 90px;
-    padding: 8px 10px;
+    padding: 2px 6px;
 
-    background: var(--panel);
-    color: var(--grid);
+    background: var(--surface);
+    color: var(--text-muted);
 
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -140,7 +140,7 @@ header {
 }
 
 #charge-value {
-    color: var(--text);
+    color: var(--text-muted);
     font-weight: 600;
 }
 

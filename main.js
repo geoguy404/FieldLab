@@ -231,8 +231,8 @@ function drawCharge(x, y, isPositive, isSelected) {
         : palette.negative;
     ctx.fill();
 
-    ctx.lineWidth = 2;
-    if(isSelected) ctx.strokeStyle = palette.grid;
+    ctx.lineWidth = 1.5;
+    if(isSelected) ctx.strokeStyle = "#5cd6d6";
     else{
     ctx.strokeStyle  = isPositive
         ? palette.positiveBd
@@ -289,8 +289,12 @@ canvas.addEventListener("pointermove", (event) => {
 
     draggedCharge.x = pointer.x;
     draggedCharge.y = pointer.y;
+
+    clampChargePosition(draggedCharge);
+
     updateInfoPanel();
     drawScene();
+
 });
 
 canvas.addEventListener("pointerup", () => {
@@ -319,6 +323,45 @@ function updateInfoPanel() {
 
     chargeDisplay.textContent = focusedCharge.charge + " C";
 }
+
+function updateFocusedChargeFromInputs() {
+    if (!focusedCharge) return;
+
+    const xInput = document.getElementById("x-coordinate");
+    const yInput = document.getElementById("y-coordinate");
+
+    const x = Number(xInput.value);
+    const y = Number(yInput.value);
+
+    if (xInput.value.trim() === "" || yInput.value.trim() === "") return;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+
+    focusedCharge.x = x;
+    focusedCharge.y = y;
+
+    clampChargePosition(focusedCharge);
+
+    updateInfoPanel();
+    drawScene();
+}
+
+function clampChargePosition(charge) {
+    const maxX = (canvasWidth / 2 - 5) / scale;
+    const maxY = (canvasHeight / 2 -5) / scale;
+
+    charge.x = Math.max(-maxX, Math.min(charge.x, maxX));
+    charge.y = Math.max(-maxY, Math.min(charge.y, maxY));
+}
+
+document.getElementById("x-coordinate").addEventListener(
+    "change",
+    updateFocusedChargeFromInputs
+);
+
+document.getElementById("y-coordinate").addEventListener(
+    "change",
+    updateFocusedChargeFromInputs
+);
 
 function calculateElectricField(charge,chargeX,chargeY,x,y) {
     const k = 8.99 * 10 ** 9;
@@ -362,8 +405,8 @@ function traceFieldLine(startX, startY){
     let x = startX;
     let y = startY;
 
-    const stepSize = 0.02;
-    const maxSteps = 2000;
+    const stepSize = 0.03;
+    const maxSteps = 3000;
     const traceLimit = 200;
 
     for (let i = 0; i < maxSteps; i++) {
@@ -458,7 +501,7 @@ function drawFieldLines() {
             );
         }
 
-        ctx.strokeStyle = "#CCD0CE";
+        ctx.strokeStyle = "#bfbfbf";
         ctx.lineWidth = 1.5;
         ctx.stroke();
     }
