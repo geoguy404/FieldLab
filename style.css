@@ -150,6 +150,10 @@ h1{
     color: var(--text);
 }
 
+h1 {
+    color: var(--text-muted);
+}
+
 #heading {
     display: flex;
   align-items: center; 
@@ -176,6 +180,14 @@ button {
 
 button:hover {
     filter: brightness(1.12);
+}
+
+#add-charge-positive {
+    border: 1px solid var(--positive);
+}
+
+#add-charge-negative {
+    border: 1px solid var(--negative);
 }
 
 

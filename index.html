@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FieldLab</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="icon" href="./FieldLab.svg" type="image/svg+xml">
 </head>
 <body>
     <div id="heading">
@@ -40,6 +41,13 @@
             <h2>Controls</h2>
             <button id="add-charge-positive">Add positive charge</button>
             <button id="add-charge-negative">Add negative charge</button>
+            <section class="selected-charge">
+                <h3>Selected Charge</h3>
+                <input id="charge-slider" type="range" min="-5" max="5" step="0.1">
+                <button id="delete-charge" disabled>
+                    Delete selected charge
+                </button>
+            </section>
             <button id="reset-button">Reset</button>
             <button id="grid-toggle">Toggle grid</button>
         </aside>

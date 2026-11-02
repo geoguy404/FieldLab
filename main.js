@@ -363,6 +363,25 @@ document.getElementById("y-coordinate").addEventListener(
     updateFocusedChargeFromInputs
 );
 
+const chargeSlider = document.getElementById("charge-slider");
+const deleteSelectedChargeBtn = document.getElementById("delete-charge");
+
+chargeSlider.addEventListener("change", (event) => {
+    if(!focusedCharge) return;
+    const charge = Number(chargeSlider.value) * 10e-10;
+    focusedCharge.charge = charge;
+
+});
+
+deleteSelectedChargeBtn.addEventListener("click", deleteSelectedCharge);
+
+function deleteSelectedCharge(){
+    if(!focusedCharge) return;
+    charges.pop(focusedCharge);
+    updateInfoPanel();
+    drawScene();
+}
+
 function calculateElectricField(charge,chargeX,chargeY,x,y) {
     const k = 8.99 * 10 ** 9;
     const dx = x-chargeX;
