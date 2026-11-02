@@ -3,6 +3,7 @@
 FieldLab is an interactive physics simulator for exploring electric and magnetic fields, electromagnetic waves in the browser. Experiment with charges, visualize field lines, and discover how electric and magnetic fields interact.
 
 # Try it out!
+https://geoguy404.github.io/FieldLab/
 
 # Features
 
