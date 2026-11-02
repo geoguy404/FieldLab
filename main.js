@@ -35,6 +35,9 @@ document.getElementById("run-button").addEventListener("click", () => {
 
 initializePyodide();
 
+const NEGATIVE = -1;
+const POSITIVE = 1;
+const NEUTRAL = 0;
 
 function getPalette() {
     const styles = getComputedStyle(document.documentElement);
@@ -46,7 +49,9 @@ function getPalette() {
         positive: styles.getPropertyValue("--positive").trim(),
         positiveBd: styles.getPropertyValue("--positive-bd").trim(),
         negative: styles.getPropertyValue("--negative").trim(),
-        negativeBd: styles.getPropertyValue("--negative-bd").trim()
+        negativeBd: styles.getPropertyValue("--negative-bd").trim(),
+        neutral: styles.getPropertyValue("--neutral").trim(),
+        neutralBd: styles.getPropertyValue("--neutral-bd").trim()
     };
 }
 
@@ -68,6 +73,7 @@ addPositiveChargeButton.addEventListener("click", () => {
     });
     focusedCharge = charges[charges.length - 1];
     updateInfoPanel();
+    updateControlPanel();
     drawScene();
 });
 
@@ -80,6 +86,7 @@ addNegativeChargeButton.addEventListener("click", () => {
     });
     focusedCharge = charges[charges.length - 1];
     updateInfoPanel();
+    updateControlPanel();
     drawScene();
 });
 
@@ -87,6 +94,14 @@ resetButton.addEventListener("click", () => {
     reset();
 });
 
+function reset() {
+    charges.length = 0;
+    focusedCharge = null;
+    draggedCharge = null;
+    updateInfoPanel();
+    updateControlPanel();
+    drawScene();
+}
 
 gridButton.addEventListener("click", () => {
     gridVisible = !gridVisible;
@@ -130,6 +145,9 @@ function resizeCanvas() {
     canvas.height = Math.round(canvasHeight * dpr);
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for(charge in charges){
+        clampChargePosition(charge);
+    }
 
     drawScene();
 }
@@ -142,20 +160,29 @@ function convertY(y) {
 }
 
 const charges = [
-    { x: -2, y: 1, charge: 1e-10 },
-    { x: 1, y: -1, charge: -1e-10 }
+    { x: -2, y: 0, charge: 1e-10 },
+    { x: 2, y: 0, charge: -1e-10 }
 ];
 
-function isPositive(charge) {
-    return charge.charge > 0;
+function getChargeType(charge) {
+    if (charge.charge > 0) return POSITIVE;
+    if (charge.charge < 0) return NEGATIVE;
+    else return NEUTRAL;
 }
 
-function reset() {
-    charges.length = 0;
-    focusedCharge = null;
-    draggedCharge = null;
-    updateInfoPanel();
-    drawScene();
+function isPositive(charge){
+    if(charge.charge > 0) return true;
+    return false;
+}
+
+function isNegative(charge){
+    if(charge.charge <0) return true;
+    return false;
+}
+
+function isNeutral(charge){
+    if(charge.charge === 0) return true;
+    return false;
 }
 
 function drawScene() {
@@ -169,7 +196,7 @@ function drawScene() {
 
     for (const charge of charges) {
     drawCharge(
-        charge.x, charge.y, isPositive(charge), charge === focusedCharge);
+        charge.x, charge.y, getChargeType(charge), charge === focusedCharge);
 }
 }
 
@@ -217,33 +244,47 @@ function drawAxis() {
 }
 
 
-function drawCharge(x, y, isPositive, isSelected) {
+function drawCharge(x, y, chargeType, isSelected) {
     const palette = getPalette();
 
     const centerX = convertX(x);
     const centerY = convertY(y);
     const radius = chargeRadius;
+    let strokeStyle = null;
+    let fillStyle = null;
+    let text = null;
+
+    if(chargeType === POSITIVE){
+        strokeStyle = palette.positiveBd;
+        fillStyle = palette.positive;
+        text = "+";
+    }
+    else if(chargeType === NEGATIVE){
+        strokeStyle = palette.negativeBd;
+        fillStyle = palette.negative;
+        text = "-";
+    }
+    else{
+        strokeStyle = palette.neutralBd;
+        fillStyle = palette.neutral;
+        text = "0";
+    }
 
     ctx.beginPath();
     ctx.arc(convertX(x), convertY(y), radius, 0, 2 * Math.PI);
-    ctx.fillStyle = isPositive
-        ? palette.positive
-        : palette.negative;
+    ctx.fillStyle = fillStyle;
     ctx.fill();
 
     ctx.lineWidth = 1.5;
+    ctx.strokeStyle = strokeStyle;
     if(isSelected) ctx.strokeStyle = "#5cd6d6";
-    else{
-    ctx.strokeStyle  = isPositive
-        ? palette.positiveBd
-        : palette.negativeBd;
-    }
     ctx.stroke();
+
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "bold 24px system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(isPositive ? "+" : "−", centerX, centerY);
+    ctx.fillText(text, centerX, centerY);
 }
 
 function pointerToPhysics(event) {
@@ -278,6 +319,7 @@ canvas.addEventListener("pointerdown", (event) => {
             break;
         }
     }
+    updateControlPanel();
     updateInfoPanel();
     drawScene();
 });
@@ -305,6 +347,20 @@ canvas.addEventListener("pointercancel", () => {
     draggedCharge = null;
 });
 
+function updateControlPanel() {
+    if (focusedCharge) {
+        chargeSlider.disabled = false;
+        deleteSelectedChargeBtn.disabled = false;
+
+        chargeSlider.value = focusedCharge.charge / 1e-10;
+    } else {
+        chargeSlider.disabled = true;
+        deleteSelectedChargeBtn.disabled = true;
+
+        chargeSlider.value = 0;
+    }
+}
+
 function updateInfoPanel() {
     const xInput = document.getElementById("x-coordinate");
     const yInput = document.getElementById("y-coordinate");
@@ -321,7 +377,7 @@ function updateInfoPanel() {
     xInput.value = focusedCharge.x.toFixed(2);
     yInput.value = focusedCharge.y.toFixed(2);
 
-    chargeDisplay.textContent = focusedCharge.charge + " C";
+    chargeDisplay.textContent = focusedCharge.charge.toExponential(1) + " C";
 }
 
 function updateFocusedChargeFromInputs() {
@@ -366,19 +422,30 @@ document.getElementById("y-coordinate").addEventListener(
 const chargeSlider = document.getElementById("charge-slider");
 const deleteSelectedChargeBtn = document.getElementById("delete-charge");
 
-chargeSlider.addEventListener("change", (event) => {
-    if(!focusedCharge) return;
-    const charge = Number(chargeSlider.value) * 10e-10;
-    focusedCharge.charge = charge;
+chargeSlider.addEventListener("input", () => {
+    if (!focusedCharge) return;
 
+    const sliderValue = Number(chargeSlider.value);
+    focusedCharge.charge = Math.round(sliderValue * 10) / 10 * 1e-10;
+
+    updateInfoPanel();
+    drawScene();
 });
 
 deleteSelectedChargeBtn.addEventListener("click", deleteSelectedCharge);
 
-function deleteSelectedCharge(){
-    if(!focusedCharge) return;
-    charges.pop(focusedCharge);
+function deleteSelectedCharge() {
+    if (!focusedCharge) return;
+
+    const i = charges.indexOf(focusedCharge);
+
+    if (i === -1) return;
+
+    charges.splice(i, 1);
+    focusedCharge = null;
+
     updateInfoPanel();
+    updateControlPanel();
     drawScene();
 }
 
@@ -479,12 +546,14 @@ function isOutsideCanvas(x, y) {
 function generateFieldLines(){
     const fieldLines = [];
 
-        const lineCount = 25;
+        let lineCount = 25;
         const startRadius = 0.4;
 
     for(const charge of charges){
         if(!isPositive(charge)) continue;
-
+        lineCount = Math.max(8, Math.min(60,
+            Math.round(Math.abs(charge.charge) * 6e10)
+        ));
         for (let i = 0; i < lineCount; i++) {
             const angle = 2* Math.PI * i /lineCount;
 
@@ -525,4 +594,3 @@ function drawFieldLines() {
         ctx.stroke();
     }
 }
-
