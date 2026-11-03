@@ -13,7 +13,14 @@
             <h1>Field Lab | An interactive field simulation</h1>
         </span>
         <aside>
-            <button id="theme-toggle">Toggle theme</button>
+            <div>
+                <input type="checkbox" class="checkbox" id="theme-checkbox">
+                <label for="theme-checkbox" class="checkbox-label">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                    <span class="ball"></span>
+                </label>
+            </div>
         </aside>
     </div>
     <main class="simulation-layout">
@@ -35,30 +42,22 @@
                     Charge:
                     <span id="charge-value">No charge selected</span>
                 </label>
+                <section class="selected-charge">
+                <input id="charge-slider" type="range" min="-5" max="5" step="0.1" disabled>
+                <button id="delete-charge" disabled>
+                    Delete selected charge
+                </button>
+            </section>
             </section>
         </section>
         <aside class="control-panel">
             <h2>Controls</h2>
             <button id="add-charge-positive">Add positive charge</button>
             <button id="add-charge-negative">Add negative charge</button>
-            <section class="selected-charge">
-                <h3>Selected Charge</h3>
-                <input id="charge-slider" type="range" min="-5" max="5" step="0.1" disabled>
-                <button id="delete-charge" disabled>
-                    Delete selected charge
-                </button>
-            </section>
             <button id="reset-button">Reset</button>
             <button id="grid-toggle">Toggle grid</button>
         </aside>
     </main>
-
-     <p id="status"> Loading python...</p>
-    <button id="run-button" disabled> Run python</button>
-    <p id="output"></p>
-
-
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

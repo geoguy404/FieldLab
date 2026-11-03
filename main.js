@@ -1,43 +1,154 @@
-let pyodide;
-
-async function initializePyodide() {
-    const status = document.getElementById("status");
-    const button = document.getElementById("run-button");
-
-    try {
-        status.textContent = 'Loading Pyodide...';
-
-        pyodide = await loadPyodide();
-
-        const response = await fetch('physics.py');
-
-        if(!response.ok) {
-            throw new Error(`Failed to fetch physics.py: ${response.status} ${response.statusText}`);
-        }
-
-        const pythonCode = await response.text();
-
-        await pyodide.runPythonAsync(pythonCode);
-
-        status.textContent = "Python is ready!";
-        button.disabled = false;
-    } catch (error) {
-        console.error('Error initializing Pyodide:', error);
-        status.textContent = 'Error loading Pyodide. Check console for details.';
-    }   
-
-}
-
-document.getElementById("run-button").addEventListener("click", () => {
-    const result = pyodide.runPython("printInitialized()");
-    document.getElementById("output").textContent = "Python returned: " + result;
-});
-
-initializePyodide();
-
 const NEGATIVE = -1;
 const POSITIVE = 1;
 const NEUTRAL = 0;
+
+
+const canvas = document.getElementById("field-canvas");
+const ctx = canvas.getContext("2d");
+const resizeObserver = new ResizeObserver(resizeCanvas);
+const addPositiveChargeButton = document.getElementById("add-charge-positive");
+const addNegativeChargeButton = document.getElementById("add-charge-negative");
+const resetButton = document.getElementById("reset-button");
+const themeCheckbox = document.getElementById("theme-checkbox");
+const gridButton = document.getElementById("grid-toggle");
+const chargeSlider = document.getElementById("charge-slider");
+const deleteSelectedChargeBtn = document.getElementById("delete-charge");
+const xCoordinate = document.getElementById("x-coordinate");
+const yCoordinate = document.getElementById("y-coordinate");
+
+let gridVisible = true;
+
+const scale = 50;
+let canvasWidth = 600;
+let canvasHeight = 400;
+
+let draggedCharge = null;
+let focusedCharge = null;
+const chargeRadius = 20;
+
+const charges = [
+    { x: -2, y: 0, charge: 2.5e-10 },
+    { x: 2, y: 0, charge: -2.5e-10 }
+];
+
+resizeCanvas();
+resizeObserver.observe(canvas);
+
+
+xCoordinate.addEventListener(
+    "change", updateFocusedChargeFromInputs
+);
+
+yCoordinate.addEventListener(
+    "change", updateFocusedChargeFromInputs
+);
+
+chargeSlider.addEventListener("input", () => {
+    if (!focusedCharge) return;
+
+    const sliderValue = Number(chargeSlider.value);
+    focusedCharge.charge = Math.round(sliderValue * 10) / 10 * 1e-10;
+
+    updateInfoPanel();
+    drawScene();
+});
+
+deleteSelectedChargeBtn.addEventListener("click", deleteSelectedCharge);
+
+addPositiveChargeButton.addEventListener("click", () => {
+    const position = {x: 0, y:0};
+
+    charges.push({
+        ...position,
+        charge: 2.5e-10
+    });
+    focusedCharge = charges[charges.length - 1];
+    updateInfoPanel();
+    updateControlPanel();
+    drawScene();
+});
+
+addNegativeChargeButton.addEventListener("click", () => {
+    const position = {x: 0, y:0};
+
+    charges.push({
+        ...position,
+        charge: -2.5e-10
+    });
+    focusedCharge = charges[charges.length - 1];
+    updateInfoPanel();
+    updateControlPanel();
+    drawScene();
+});
+
+resetButton.addEventListener("click", () => {
+    reset();
+});
+
+gridButton.addEventListener("click", () => {
+    gridVisible = !gridVisible;
+    gridButton.textContent = gridVisible ? "Hide grid" : "Show grid";
+    drawScene();
+});
+
+themeCheckbox.addEventListener("change", () => {
+    const root = document.documentElement;
+
+    const isDark = root.dataset.theme !== "light";
+
+    root.dataset.theme = isDark ? "light" : "dark";
+
+
+    drawScene();
+});
+
+canvas.addEventListener("pointerdown", (event) => {
+    const pointer = pointerToPhysics(event);
+    focusedCharge = null;
+    draggedCharge = null;
+
+    for (let i = charges.length - 1; i >= 0; i--) {
+        const charge = charges[i];
+
+        const dx = pointer.x - charge.x;
+        const dy = pointer.y - charge.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance <= chargeRadius / scale) {
+            draggedCharge = charge;
+            focusedCharge = charge;
+
+            canvas.setPointerCapture(event.pointerId);
+            break;
+        }
+    }
+    updateControlPanel();
+    updateInfoPanel();
+    drawScene();
+});
+
+canvas.addEventListener("pointermove", (event) => {
+    if (draggedCharge === null) return;
+
+    const pointer = pointerToPhysics(event);
+
+    draggedCharge.x = pointer.x;
+    draggedCharge.y = pointer.y;
+
+    clampChargePosition(draggedCharge);
+
+    updateInfoPanel();
+    drawScene();
+
+});
+
+canvas.addEventListener("pointerup", () => {
+    draggedCharge = null;
+});
+
+canvas.addEventListener("pointercancel", () => {
+    draggedCharge = null;
+});
 
 function getPalette() {
     const styles = getComputedStyle(document.documentElement);
@@ -55,45 +166,6 @@ function getPalette() {
     };
 }
 
-const addPositiveChargeButton = document.getElementById("add-charge-positive");
-const addNegativeChargeButton = document.getElementById("add-charge-negative");
-
-const resetButton = document.getElementById("reset-button");
-
-const themeButton = document.getElementById("theme-toggle");
-const gridButton = document.getElementById("grid-toggle");
-let gridVisible = true;
-
-addPositiveChargeButton.addEventListener("click", () => {
-    const position = {x: 0, y:0};
-
-    charges.push({
-        ...position,
-        charge: 1e-10
-    });
-    focusedCharge = charges[charges.length - 1];
-    updateInfoPanel();
-    updateControlPanel();
-    drawScene();
-});
-
-addNegativeChargeButton.addEventListener("click", () => {
-    const position = {x: 0, y:0};
-
-    charges.push({
-        ...position,
-        charge: -1e-10
-    });
-    focusedCharge = charges[charges.length - 1];
-    updateInfoPanel();
-    updateControlPanel();
-    drawScene();
-});
-
-resetButton.addEventListener("click", () => {
-    reset();
-});
-
 function reset() {
     charges.length = 0;
     focusedCharge = null;
@@ -102,37 +174,6 @@ function reset() {
     updateControlPanel();
     drawScene();
 }
-
-gridButton.addEventListener("click", () => {
-    gridVisible = !gridVisible;
-    gridButton.textContent = gridVisible ? "Hide grid" : "Show grid";
-    drawScene();
-});
-
-themeButton.addEventListener("click", () => {
-    const root = document.documentElement;
-
-    const isDark = root.dataset.theme !== "light";
-
-    root.dataset.theme = isDark ? "light" : "dark";
-
-
-    drawScene();
-});
-
-
-
-const canvas = document.getElementById("field-canvas");
-const ctx = canvas.getContext("2d");
-
-
-const scale = 50;
-let canvasWidth = 600;
-let canvasHeight = 400;
-
-let draggedCharge = null;
-let focusedCharge = null;
-const chargeRadius = 20;
 
 function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
@@ -145,7 +186,7 @@ function resizeCanvas() {
     canvas.height = Math.round(canvasHeight * dpr);
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    for(charge in charges){
+    for(charge of charges){
         clampChargePosition(charge);
     }
 
@@ -158,11 +199,6 @@ function convertX(x) {
 function convertY(y) {
     return canvasHeight / 2 - y * scale;
 }
-
-const charges = [
-    { x: -2, y: 0, charge: 1e-10 },
-    { x: 2, y: 0, charge: -1e-10 }
-];
 
 function getChargeType(charge) {
     if (charge.charge > 0) return POSITIVE;
@@ -199,11 +235,6 @@ function drawScene() {
         charge.x, charge.y, getChargeType(charge), charge === focusedCharge);
 }
 }
-
-resizeCanvas();
-
-const resizeObserver = new ResizeObserver(resizeCanvas);
-resizeObserver.observe(canvas);
 
 
 function drawGrid() {
@@ -299,54 +330,6 @@ function pointerToPhysics(event) {
     };
 }
 
-canvas.addEventListener("pointerdown", (event) => {
-    const pointer = pointerToPhysics(event);
-    focusedCharge = null;
-    draggedCharge = null;
-
-    for (let i = charges.length - 1; i >= 0; i--) {
-        const charge = charges[i];
-
-        const dx = pointer.x - charge.x;
-        const dy = pointer.y - charge.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance <= chargeRadius / scale) {
-            draggedCharge = charge;
-            focusedCharge = charge;
-
-            canvas.setPointerCapture(event.pointerId);
-            break;
-        }
-    }
-    updateControlPanel();
-    updateInfoPanel();
-    drawScene();
-});
-
-canvas.addEventListener("pointermove", (event) => {
-    if (draggedCharge === null) return;
-
-    const pointer = pointerToPhysics(event);
-
-    draggedCharge.x = pointer.x;
-    draggedCharge.y = pointer.y;
-
-    clampChargePosition(draggedCharge);
-
-    updateInfoPanel();
-    drawScene();
-
-});
-
-canvas.addEventListener("pointerup", () => {
-    draggedCharge = null;
-});
-
-canvas.addEventListener("pointercancel", () => {
-    draggedCharge = null;
-});
-
 function updateControlPanel() {
     if (focusedCharge) {
         chargeSlider.disabled = false;
@@ -409,31 +392,6 @@ function clampChargePosition(charge) {
     charge.y = Math.max(-maxY, Math.min(charge.y, maxY));
 }
 
-document.getElementById("x-coordinate").addEventListener(
-    "change",
-    updateFocusedChargeFromInputs
-);
-
-document.getElementById("y-coordinate").addEventListener(
-    "change",
-    updateFocusedChargeFromInputs
-);
-
-const chargeSlider = document.getElementById("charge-slider");
-const deleteSelectedChargeBtn = document.getElementById("delete-charge");
-
-chargeSlider.addEventListener("input", () => {
-    if (!focusedCharge) return;
-
-    const sliderValue = Number(chargeSlider.value);
-    focusedCharge.charge = Math.round(sliderValue * 10) / 10 * 1e-10;
-
-    updateInfoPanel();
-    drawScene();
-});
-
-deleteSelectedChargeBtn.addEventListener("click", deleteSelectedCharge);
-
 function deleteSelectedCharge() {
     if (!focusedCharge) return;
 
@@ -492,7 +450,7 @@ function traceFieldLine(startX, startY){
     let y = startY;
 
     const stepSize = 0.03;
-    const maxSteps = 3000;
+    const maxSteps = 100000;
     const traceLimit = 200;
 
     for (let i = 0; i < maxSteps; i++) {
