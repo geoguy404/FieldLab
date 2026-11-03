@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FieldLab</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" href="./FieldLab.svg" type="image/svg+xml">
 </head>
 <body>
@@ -50,13 +51,21 @@
             </section>
             </section>
         </section>
-        <aside class="control-panel">
+        <aside class="aside-panel">
+            <div class="control-panel">
             <h2>Controls</h2>
             <button id="add-charge-positive">Add positive charge</button>
             <button id="add-charge-negative">Add negative charge</button>
             <button id="reset-button">Reset</button>
             <button id="grid-toggle">Toggle grid</button>
-        </aside>
+            </div>
+            <div class="preset-panel">
+            <h2>Presets</h2>
+            <button id="single-positive-preset">Single Positive</button>
+            <button id="single-negative-preset">Single Negative</button>
+            <button id="dipole-preset">Dipole</button>
+            <button id="two-same-preset">Two of the same</button>
+            </div>
     </main>
     <script src="main.js"></script>
 </body>

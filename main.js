@@ -15,6 +15,10 @@ const chargeSlider = document.getElementById("charge-slider");
 const deleteSelectedChargeBtn = document.getElementById("delete-charge");
 const xCoordinate = document.getElementById("x-coordinate");
 const yCoordinate = document.getElementById("y-coordinate");
+const singlePositive = document.getElementById("single-positive-preset");
+const singleNegative = document.getElementById("single-negative-preset");
+const dipolePreset = document.getElementById("dipole-preset");
+const twoSamePreset = document.getElementById("two-same-preset");
 
 let gridVisible = true;
 
@@ -26,7 +30,7 @@ let draggedCharge = null;
 let focusedCharge = null;
 const chargeRadius = 20;
 
-const charges = [
+let charges = [
     { x: -2, y: 0, charge: 2.5e-10 },
     { x: 2, y: 0, charge: -2.5e-10 }
 ];
@@ -150,6 +154,47 @@ canvas.addEventListener("pointercancel", () => {
     draggedCharge = null;
 });
 
+singlePositive.addEventListener("click", () => {
+    reset();
+    charges = [
+    { x: 0, y: 0, charge: 2.5e-10 }
+    ];
+    updateControlPanel();
+    updateInfoPanel();
+    drawScene();
+});
+
+singleNegative.addEventListener("click", () => {
+    reset();
+    charges = [
+    { x: 0, y: 0, charge: -2.5e-10 }
+    ];
+    updateControlPanel();
+    updateInfoPanel();
+    drawScene();
+});
+
+dipolePreset.addEventListener("click", () => {
+    reset();
+    charges = [
+    { x: -2, y: 0, charge: 3e-10 },
+    { x: 2, y: 0, charge: -3e-10}
+    ];
+    updateControlPanel();
+    updateInfoPanel();
+    drawScene();
+});
+twoSamePreset.addEventListener("click", () => {
+    reset();
+    charges = [
+    { x: -2, y: 0, charge: 3e-10 },
+    { x: 2, y: 0, charge: 3e-10}
+    ];
+    updateControlPanel();
+    updateInfoPanel();
+    drawScene();
+});
+
 function getPalette() {
     const styles = getComputedStyle(document.documentElement);
 
@@ -162,7 +207,8 @@ function getPalette() {
         negative: styles.getPropertyValue("--negative").trim(),
         negativeBd: styles.getPropertyValue("--negative-bd").trim(),
         neutral: styles.getPropertyValue("--neutral").trim(),
-        neutralBd: styles.getPropertyValue("--neutral-bd").trim()
+        neutralBd: styles.getPropertyValue("--neutral-bd").trim(),
+        fieldLineColor: styles.getPropertyValue("--field-lines").trim()
     };
 }
 
@@ -450,7 +496,7 @@ function traceFieldLine(startX, startY){
     let y = startY;
 
     const stepSize = 0.03;
-    const maxSteps = 100000;
+    const maxSteps = 3000;
     const traceLimit = 200;
 
     for (let i = 0; i < maxSteps; i++) {
@@ -547,7 +593,7 @@ function drawFieldLines() {
             );
         }
 
-        ctx.strokeStyle = "#bfbfbf";
+        ctx.strokeStyle = getPalette().fieldLineColor;
         ctx.lineWidth = 1.5;
         ctx.stroke();
     }

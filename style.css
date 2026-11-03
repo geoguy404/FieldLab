@@ -1,4 +1,11 @@
-:root,
+:root{
+    --positive: #b43b0b;
+    --positive-bd: #8a482e;
+    --negative: #0b66bb;
+    --negative-bd: #436686;
+    --neutral: #505050;
+    --neutral-bd: #606060;
+}
 :root[data-theme="dark"] {
     color-scheme: dark;
 
@@ -8,16 +15,10 @@
     --border: #4A5C6A;
     --text-muted: #9BA8AB;
     --text: #CCD0CD;
-    --positive: #b43b0b;
-    --positive-bd: #8a482e;
-    --negative: #0b66bb;
-    --negative-bd: #436686;
-    --neutral: #505050;
-    --neutral-bd: #606060;
-
     --canvas-bg: #253745;
     --grid: #38607c;
     --axis: #276472;
+    --field-lines: #798999;
 }
 
 :root[data-theme="light"] {
@@ -29,17 +30,10 @@
     --border: #C3CFD0;
     --text-muted: #53666C;
     --text: #172B33;
-    --positive: #b43b0b;
-    --positive-bd: #964525;
-    --negative: #0b66bb;
-    --negative-bd: #335e86;
-    --neutral: #505050;
-    --neutral-bd: #606060;
-
-
     --canvas-bg: #FAFCFB;
     --grid: #b2ceca;
     --axis: #758e96;
+    --field-lines: #b3b3b3;
 }
 
 
@@ -105,9 +99,9 @@ header {
 }
 
 
-.fa-moon {color: #f1c40f;}
+.fa-moon {color: var(--text);}
 
-.fa-sun {color: #f39c12;}
+.fa-sun {color: var(--text);}
 
 
 .simulation-layout {
@@ -127,18 +121,21 @@ header {
 }
 
 .canvas-panel,
+.preset-panel,
 .control-panel {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 20px;
+    padding: 10px;
     transition: background 0.3s;
 }
 
-.control-panel {
+.control-panel,
+.preset-panel {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
+    margin-bottom: 20px;
 }
 
 .info-panel {
@@ -188,12 +185,6 @@ header {
     font-weight: 600;
 }
 
-h1{
-    text-align: center;
-    font-size: 2em;
-    color: var(--text);
-}
-
 h1 {
     color: var(--text-muted);
 }
@@ -220,6 +211,7 @@ button {
 
     font: inherit;
     cursor: pointer;
+    transition: background 0.3s;
 }
 
 button:hover {
@@ -242,6 +234,7 @@ button:hover {
     aspect-ratio: 3 / 2;
     background: var(--canvas-bg);
     border-radius: 4px;
+    transition: background 0.3s;
 }
 
 #field-canvas {
