@@ -65,7 +65,7 @@ header {
     justify-content: space-between;
     gap: 16px;
 }
-
+/* from ... */
 .checkbox {
   opacity: 0;
   position: absolute;
@@ -98,11 +98,10 @@ header {
   transform: translateX(24px);
 }
 
-
-.fa-moon {color: var(--text);}
-
-.fa-sun {color: var(--text);}
-
+.fa-moon,
+.fa-sun {color: var(--text);
+}
+/* --- */
 
 .simulation-layout {
     display: grid;
@@ -155,7 +154,7 @@ header {
 .info-panel-label {
     display: block;
     align-items: center;
-    gap: 8px;
+    width : 130px;
 
     color: var(--text-muted);
     font-size: 0.9rem;
@@ -203,7 +202,6 @@ p{
 button {
     padding: 10px 10px;
     margin: 5px;
-    size: 1em;
     border: 1px solid var(--border);
     border-radius: 4px;
     background: var(--surface);
@@ -235,9 +233,6 @@ button:hover {
     background: var(--canvas-bg);
     border-radius: 4px;
     transition: background 0.3s;
-}
-
-#field-canvas {
     touch-action: none;
     cursor: grab;
 }
