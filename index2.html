@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FieldLab</title>
+    <link rel="stylesheet" href="./style2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" href="./FieldLab.svg" type="image/svg+xml">
+</head>
+
+<body>
+    <main class="simulation-layout">
+        <canvas id="field-canvas" width="600" height="400"></canvas>
+
+        <section class="floating-panel" id="theme-panel">
+        <h2> FieldLab</h2>
+        </section>
+
+        <section class="floating-panel" id="control-panel">
+            <div id="heading">
+                <span>
+                    <h2>Controls</h2>
+                </span>
+                <aside>
+                    <div>
+                        <input type="checkbox" class="checkbox" id="theme-checkbox">
+                        <label for="theme-checkbox" class="checkbox-label">
+                            <i class="fas fa-moon"></i>
+                            <i class="fas fa-sun"></i>
+                            <span class="ball"></span>
+                        </label>
+                    </div>
+                </aside>
+            </div>
+            <button id="add-charge-positive">Add positive charge</button>
+            <button id="add-charge-negative">Add negative charge</button>
+            <button id="reset-button">Reset</button>
+            <button id="grid-toggle">Toggle grid</button>
+        </section>
+
+        <section class="floating-panel" id="preset-panel">
+            <h2>Presets</h2>
+
+            <button id="single-positive-preset">Single Positive</button>
+            <button id="single-negative-preset">Single Negative</button>
+            <button id="dipole-preset">Dipole</button>
+            <button id="two-same-preset">Two of the same</button>
+        </section>
+        <section class="floating-panel" id="info-panel">
+
+            <h2>Selected charge</h2>
+            <section>
+                <label class="info-panel-label">
+                    x:
+                    <input type="number" id="x-coordinate" step="0.1">
+                </label>
+                <label class="info-panel-label">
+                    y:
+                    <input type="number" id="y-coordinate" step="0.1">
+                </label>
+            </section>
+            <label class="info-panel-label">
+                Charge:
+                <span id="charge-value">No charge selected</span>
+            </label>
+            <input id="charge-slider" type="range" min="-5" max="5" step="0.1" disabled>
+            <button id="delete-charge" disabled>
+                Delete selected charge
+            </button>
+        </section>
+    </main>
+    <script src="main.js"></script>
+</body>
+
+</html>
