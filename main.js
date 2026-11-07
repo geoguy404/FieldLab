@@ -57,6 +57,7 @@ chargeSlider.addEventListener("input", () => {
     drawScene();
 });
 
+
 deleteSelectedChargeBtn.addEventListener("click", deleteSelectedCharge);
 
 addPositiveChargeButton.addEventListener("click", () => {
@@ -212,6 +213,18 @@ function getPalette() {
     };
 }
 
+function sliderPosition() {
+    if (focusedCharge.charge > 0) {
+        return "var(--positive)";
+    }
+    else if (focusedCharge.charge < 0) {
+        return "var(--negative)";
+    }
+    else {
+        return "var(--neutral)";
+    }
+}
+
 function reset() {
     charges.length = 0;
     focusedCharge = null;
@@ -354,7 +367,7 @@ function drawCharge(x, y, chargeType, isSelected) {
 
     ctx.lineWidth = 1.5;
     ctx.strokeStyle = strokeStyle;
-    if(isSelected) ctx.strokeStyle = "#5cd6d6";
+    if(isSelected) ctx.strokeStyle = getPalette().b;
     ctx.stroke();
 
     ctx.fillStyle = "#FFFFFF";
@@ -399,9 +412,10 @@ function updateInfoPanel() {
         xInput.value = "";
         yInput.value = "";
         chargeDisplay.textContent = "No charge selected";
-
+        chargeSlider.style.setProperty("--thumb-color", "#666666");
         return;
     }
+    chargeSlider.style.setProperty("--thumb-color", sliderPosition());
 
     xInput.value = focusedCharge.x.toFixed(2);
     yInput.value = focusedCharge.y.toFixed(2);
