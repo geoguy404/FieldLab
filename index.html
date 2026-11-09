@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,67 +8,117 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" href="./FieldLab.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js">
+    </script>
+
+    <script defer src="main.js"></script>
 </head>
+
 <body>
-    <div id="heading">
-        <span>
-            <h1>Field Lab | An interactive field simulation</h1>
-        </span>
-        <aside>
-            <div>
-                <input type="checkbox" class="checkbox" id="theme-checkbox">
-                <label for="theme-checkbox" class="checkbox-label">
-                    <i class="fas fa-moon"></i>
-                    <i class="fas fa-sun"></i>
-                    <span class="ball"></span>
-                </label>
-            </div>
-        </aside>
-    </div>
     <main class="simulation-layout">
-        <section class="canvas-panel">
-            <h2>Simulation</h2>
-            <canvas id="field-canvas" width="600" height="400"></canvas>
-            <section class="info-panel">
-                <label class="info-panel-label">
-                    x:
-                    <input type="number" id="x-coordinate" step="0.1">
-                </label>
+        <canvas id="field-canvas" width="600" height="400"></canvas>
 
-                <label class="info-panel-label">
-                    y:
-                    <input type="number" id="y-coordinate" step="0.1">
-                </label>
-
-                <label class="info-panel-label">
-                    Charge:
-                    <span id="charge-value">No charge selected</span>
-                </label>
-                <section class="selected-charge">
-                <input id="charge-slider" type="range" min="-5" max="5" step="0.1" disabled>
-                <button id="delete-charge" disabled>
-                    Delete selected charge
+        <section class="floating-panel" id="theme-panel">
+            <div class="brand">
+                <img src="./FieldLab.svg" alt="FieldLab icon" id="icon">
+                <h2> FieldLab</h2>
+                <button id="about-button" aria-label="About FieldLab">
+                    <i class="fas fa-circle-info"></i>
                 </button>
-            </section>
-            </section>
+            </div>
         </section>
-        <aside class="aside-panel">
-            <div class="control-panel">
-            <h2>Controls</h2>
+
+        <section class="floating-panel" id="control-panel">
+            <div id="heading">
+                <span>
+                    <h2>Controls</h2>
+                </span>
+                <aside>
+                    <div>
+                        <input type="checkbox" class="checkbox" id="theme-checkbox">
+                        <label for="theme-checkbox" class="checkbox-label">
+                            <i class="fas fa-moon"></i>
+                            <i class="fas fa-sun"></i>
+                            <span class="ball"></span>
+                        </label>
+                    </div>
+                </aside>
+            </div>
             <button id="add-charge-positive">Add positive charge</button>
             <button id="add-charge-negative">Add negative charge</button>
             <button id="reset-button">Reset</button>
             <button id="grid-toggle">Toggle grid</button>
-            </div>
-            <div class="preset-panel">
+        </section>
+
+        <section class="floating-panel" id="preset-panel">
             <h2>Presets</h2>
+
             <button id="single-positive-preset">Single Positive</button>
             <button id="single-negative-preset">Single Negative</button>
             <button id="dipole-preset">Dipole</button>
             <button id="two-same-preset">Two of the same</button>
-            </div>
-        </aside>
+        </section>
+        <section class="floating-panel" id="info-panel">
+
+            <h2>Selected charge</h2>
+            <section>
+                <label class="info-panel-label">
+                    x:
+                    <input type="number" id="x-coordinate" step="0.1">
+                </label>
+                <label class="info-panel-label">
+                    y:
+                    <input type="number" id="y-coordinate" step="0.1">
+                </label>
+            </section>
+            <label class="info-panel-label">
+                Charge:
+                <span id="charge-value">No charge selected</span>
+            </label>
+            <input id="charge-slider" type="range" min="-5" max="5" step="0.1" disabled>
+            <button id="delete-charge" disabled>
+                Delete selected charge
+            </button>
+        </section>
     </main>
-    <script src="main.js"></script>
+    <dialog id="project-dialog" closedby="any">
+        <header class="dialog-header">
+            <h2>About FieldLab</h2>
+
+            <button id="close-dialog" aria-label="Close">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </header>
+        <div class="dialog-content">
+
+            <section>
+                <h3>About the project</h3>
+                <p>
+                    FieldLab is an interactive simulation
+                    for exploring electric fields and charges.
+                </p>
+            </section>
+
+            <section>
+                <h3>Physics</h3>
+                <p>Coulomb's law:</p>
+                <div class="equation" id="coulomb-equation">
+
+                </div>
+            </section>
+
+            <section>
+                <h3>Credits</h3>
+                <p>Author: Sebastian Schneider</p>
+                <a href="https://github.com/geoguy404/FieldLab" target="_blank">
+                    GitHub Repository
+                </a>
+            </section>
+
+        </div>
+    </dialog>
 </body>
+
 </html>

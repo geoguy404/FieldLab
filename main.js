@@ -2,7 +2,6 @@ const NEGATIVE = -1;
 const POSITIVE = 1;
 const NEUTRAL = 0;
 
-
 const canvas = document.getElementById("field-canvas");
 const ctx = canvas.getContext("2d");
 const resizeObserver = new ResizeObserver(resizeCanvas);
@@ -19,6 +18,15 @@ const singlePositive = document.getElementById("single-positive-preset");
 const singleNegative = document.getElementById("single-negative-preset");
 const dipolePreset = document.getElementById("dipole-preset");
 const twoSamePreset = document.getElementById("two-same-preset");
+const projectDialog = document.getElementById("project-dialog");
+const aboutButton = document.getElementById("about-button");
+const closeDialog = document.getElementById("close-dialog");
+const coulombEquationEl = document.getElementById("coulomb-equation");
+const fieldXEquationEl = document.getElementById("field-x-equation");
+
+//const coulombsLawEquation = String.raw`F = k \\frac{|q_1 \cdot q_2|}{r^2}`;
+
+//renderEquation(coulombsLawEquation,coulombEquationEl);
 
 let gridVisible = true;
 
@@ -196,6 +204,14 @@ twoSamePreset.addEventListener("click", () => {
     drawScene();
 });
 
+aboutButton.addEventListener("click", () => {
+    projectDialog.showModal();
+});
+
+closeDialog.addEventListener("click", () => {
+    projectDialog.close();
+});
+
 function getPalette() {
     const styles = getComputedStyle(document.documentElement);
 
@@ -223,6 +239,15 @@ function sliderPosition() {
     else {
         return "var(--neutral)";
     }
+}
+
+function renderEquation(elementId, latex) {
+    const element = document.getElementById(elementId);
+
+    katex.render(latex, element, {
+        throwOnError: false,
+        displayMode: true
+    });
 }
 
 function reset() {
